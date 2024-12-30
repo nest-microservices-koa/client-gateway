@@ -6,6 +6,8 @@ interface EnvVars {
   PORT: number;
   PRODUCTS_MS_HOST: string;
   PRODUCTS_MS_PORT: number;
+  ORDERS_MS_HOST: string;
+  ORDERS_MS_PORT: number;
 }
 
 const envVarsSchema = joi
@@ -13,6 +15,8 @@ const envVarsSchema = joi
     PORT: joi.number().default(3000),
     PRODUCTS_MS_HOST: joi.string().required(),
     PRODUCTS_MS_PORT: joi.number().required(),
+    ORDERS_MS_HOST: joi.string().required(),
+    ORDERS_MS_PORT: joi.number().required(),
   })
   .unknown(true);
 
@@ -28,4 +32,6 @@ export const envs = {
   port: envVarsConfig.PORT,
   productsMsHost: envVarsConfig.PRODUCTS_MS_HOST,
   productsMSPort: envVarsConfig.PRODUCTS_MS_PORT,
+  ordersMsHost: envVarsConfig.ORDERS_MS_HOST,
+  ordersMSPort: envVarsConfig.ORDERS_MS_PORT,
 };
