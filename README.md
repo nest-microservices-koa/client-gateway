@@ -71,6 +71,16 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+NATS:
+
+- 4222 is for clients.
+- 8222 is an HTTP management port for information reporting.
+- 6222 is a routing port for clustering.
+
+```bash
+$ docker run -d --name nats-main -p 4222:4222 -p 8222:8222 nats
+```
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:

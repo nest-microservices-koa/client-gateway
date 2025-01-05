@@ -9,8 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ClientProxy, Payload, RpcException } from '@nestjs/microservices';
-import { envs, PRODUCTS_SERVICE } from 'src/config';
-import { Logger } from '@nestjs/common';
+import { NATS_SERVICE } from 'src/config';
 import { PaginationDto } from 'src/common';
 import { catchError } from 'rxjs';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -18,37 +17,21 @@ import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 export class ProductsController {
-  private readonly logger = new Logger(ProductsController.name);
-
-  constructor(
-    @Inject(PRODUCTS_SERVICE) private readonly productsClient: ClientProxy,
-  ) {
-    this.initialize();
-  }
-
-  private async initialize() {
-    this.logger.log(
-      `Connecting to PRODUCTS_SERVICE at ${envs.productsMsHost}:${envs.productsMSPort}`,
-    );
-    await this.productsClient.connect();
-  }
+  constructor(@Inject(NATS_SERVICE) private readonly client: ClientProxy) {}
 
   @Post()
   createProduct(@Payload() createProductDto: CreateProductDto) {
-    return this.productsClient.send(
-      { cmd: 'create-product' },
-      createProductDto,
-    );
+    return this.client.send({ cmd: 'create-product' }, createProductDto);
   }
 
   @Get()
   findAllProducts(@Query() paginationDto: PaginationDto) {
-    return this.productsClient.send({ cmd: 'find-all' }, paginationDto);
+    return this.client.send({ cmd: 'find-all-product' }, paginationDto);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsClient.send({ cmd: 'find-one-product' }, { id }).pipe(
+    return this.client.send({ cmd: 'find-one-product' }, { id }).pipe(
       catchError((error) => {
         throw new RpcException(error);
       }),
@@ -57,14 +40,11 @@ export class ProductsController {
 
   @Delete(':id')
   deleteProduct(@Param('id') id: string) {
-    return this.productsClient.send({ cmd: 'delete-product' }, { id });
+    return this.client.send({ cmd: 'delete-product' }, { id });
   }
 
   @Patch()
   updateProduct(@Payload() updateProductDto: UpdateProductDto) {
-    return this.productsClient.send(
-      { cmd: 'update-product' },
-      updateProductDto,
-    );
+    return this.client.send({ cmd: 'update-product' }, updateProductDto);
   }
 }

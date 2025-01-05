@@ -4,23 +4,22 @@ import * as joi from 'joi';
 
 interface EnvVars {
   PORT: number;
-  PRODUCTS_MS_HOST: string;
-  PRODUCTS_MS_PORT: number;
-  ORDERS_MS_HOST: string;
-  ORDERS_MS_PORT: number;
+  NATS_SERVERS: string[];
 }
 
 const envVarsSchema = joi
   .object({
     PORT: joi.number().default(3000),
-    PRODUCTS_MS_HOST: joi.string().required(),
-    PRODUCTS_MS_PORT: joi.number().required(),
-    ORDERS_MS_HOST: joi.string().required(),
-    ORDERS_MS_PORT: joi.number().required(),
+    NATS_SERVERS: joi.array().items(joi.string()).required(),
   })
   .unknown(true);
 
-const { error, value: envVars } = envVarsSchema.validate(process.env);
+const natServers = process.env.NATS_SERVERS?.split(',') || [];
+
+const { error, value: envVars } = envVarsSchema.validate({
+  ...process.env,
+  NATS_SERVERS: natServers,
+});
 
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
@@ -30,8 +29,5 @@ const envVarsConfig = envVars as EnvVars;
 
 export const envs = {
   port: envVarsConfig.PORT,
-  productsMsHost: envVarsConfig.PRODUCTS_MS_HOST,
-  productsMSPort: envVarsConfig.PRODUCTS_MS_PORT,
-  ordersMsHost: envVarsConfig.ORDERS_MS_HOST,
-  ordersMSPort: envVarsConfig.ORDERS_MS_PORT,
+  natsServers: envVarsConfig.NATS_SERVERS,
 };
